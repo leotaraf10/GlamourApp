@@ -1,29 +1,67 @@
-import { supabase } from '../_lib/supabase.js';
+import { supabaseAdmin } from '../_lib/supabase.js';
 import { verifyAdmin } from '../_lib/auth.js';
 
+// Vercel serverless config: disable default body parser to handle raw buffer
 export const config = {
   api: {
-    bodyParser: false, // Disables Vercel's default parser to handle multipart/form-data manually or via buffer
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
   },
 };
 
-// Helper to parse multipart/form-data with a buffer-based approach
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const admin = verifyAdmin(req);
   if (!admin) return res.status(403).json({ error: 'Admin access required' });
 
-  // Use a specialized approach for Vercel/Supabase uploads
-  // Since we are in a serverless function, we should ideally use a library like 'formidable'
-  // But for a 100% free/simple setup, we can also use Supabase's signed URLs or just client-side upload.
-  
-  // Actually, CHIC GLAM admin is already using client-side fetch with FormData.
-  // We will use 'busboy' or similar to parse the file in the serverless function.
-  
-  // NOTE: For absolute simplicity and reliability in a serverless environment WITHOUT additional bulky dependencies,
-  // we can also suggest the user to use the Supabase JS Client DIRECTLY from the frontend for uploads.
-  // But since they have a backend, we'll try to keep it here.
-  
-  return res.status(501).json({ error: 'Pour un hébergement 100% gratuit, utilisez des URLs d\'images directes ou configurez Supabase Storage.' });
+  try {
+    const contentType = req.headers['content-type'] || '';
+
+    // Handle base64 data URL uploads (from frontend canvas/FileReader)
+    if (contentType.includes('application/json')) {
+      const { file: base64Data, filename, mimeType } = req.body;
+
+      if (!base64Data || !filename) {
+        return res.status(400).json({ error: 'Missing file data or filename' });
+      }
+
+      // Decode base64
+      const base64 = base64Data.replace(/^data:[^;]+;base64,/, '');
+      const buffer = Buffer.from(base64, 'base64');
+      const filePath = `uploads/${Date.now()}-${filename.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+
+      const { data, error } = await supabaseAdmin.storage
+        .from('products')
+        .upload(filePath, buffer, {
+          contentType: mimeType || 'image/jpeg',
+          upsert: false,
+        });
+
+      if (error) {
+        console.error('Supabase upload error:', error);
+        if (error.message.includes('Bucket not found') || error.message.includes('bucket')) {
+          return res.status(500).json({
+            error: 'Bucket "products" introuvable. Créez-le dans Supabase → Storage → New Bucket → "products" (Public)',
+          });
+        }
+        return res.status(500).json({ error: error.message });
+      }
+
+      const { data: { publicUrl } } = supabaseAdmin.storage.from('products').getPublicUrl(filePath);
+      return res.status(200).json({ url: publicUrl, path: filePath });
+    }
+
+    return res.status(400).json({ error: 'Content-Type application/json avec base64 requis' });
+  } catch (err) {
+    console.error('Upload handler error:', err);
+    return res.status(500).json({ error: err.message });
+  }
 }

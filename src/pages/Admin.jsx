@@ -6,6 +6,7 @@ import {
   CheckCircle2, AlertCircle, PlusCircle, Trash2, Eye, Download,
   Navigation, Pencil, GripVertical, EyeOff, Flame
 } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
 import { useAuthStore } from '../store';
 import { API_URL } from '../apiConfig';
 
@@ -13,6 +14,12 @@ import { API_URL } from '../apiConfig';
 const API = API_URL;
 const BASE_URL = API_URL.replace('/api', '');
 const authHeader = (token) => ({ 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' });
+
+// Shared Supabase client for frontend uploads (uses anon key — safe for Storage uploads)
+const supabaseClient = createClient(
+  import.meta.env.VITE_SUPABASE_URL || 'https://zplnrgzlvqdunuizpldq.supabase.co',
+  import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwbG5yZ3psdnFkdW51aXpwbGRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMTczMTAsImV4cCI6MjA5MDc5MzMxMH0.5ZJQekU4VLmgRi1__7SWd1ev2F-W9FFOaMSeFeHt7l0'
+);
 
 const getImgUrl = (img) => {
   if (!img) return '';
@@ -124,17 +131,13 @@ function ProductsTab({ token }) {
   const uploadFile = async (file, field) => {
     if (!file) return;
     
-    // Supabase Client for direct upload
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabase = createClient(process.env.VITE_SUPABASE_URL || 'https://zplnrgzlvqdunuizpldq.supabase.co', process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwbG5yZ3psdnFkdW51aXpwbGRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMTczMTAsImV4cCI6MjA5MDc5MzMxMH0.5ZJQekU4VLmgRi1__7SWd1ev2F-W9FFOaMSeFeHt7l0');
-
-    const fileName = `${Date.now()}-${file.name}`;
-    const filePath = `uploads/${fileName}`;
+    const fileName = `uploads/${Date.now()}-${file.name}`;
+    const filePath = fileName;
 
     try {
-      const { data, error } = await supabase.storage.from('products').upload(filePath, file);
+      const { data, error } = await supabaseClient.storage.from('products').upload(filePath, file);
       if (error) {
-        if (error.message.includes('bucket not found')) {
+        if (error.message.includes('bucket not found') || error.message.includes('Bucket not found')) {
            alert('Erreur: Le bucket "products" n\'est pas créé sur votre Supabase. Allez dans "Storage" > "New Bucket" > Nommez-le "products" > Mettez-le en "Public".');
         } else {
            alert(`Erreur d'upload: ${error.message}`);
@@ -143,7 +146,7 @@ function ProductsTab({ token }) {
       }
 
       // Get Public URL
-      const { data: { publicUrl } } = supabase.storage.from('products').getPublicUrl(filePath);
+      const { data: { publicUrl } } = supabaseClient.storage.from('products').getPublicUrl(filePath);
       setForm(prev => ({ ...prev, [field]: publicUrl }));
     } catch (err) {
       console.error('Upload error:', err);
@@ -399,27 +402,28 @@ function ProductsTab({ token }) {
 
 // ─── Hero Tab ─────────────────────────────────────────────────────
 function HeroTab({ token }) {
-  const { data: slides, refresh } = useAdminData('/hero-slides/all', token);
+  const { data: slides, refresh } = useAdminData('/hero-slides?all=true', token);
   const [form, setForm] = useState({ image_url: '', title: '', subtitle: '', cta_text: 'Découvrir', cta_link: '/', active: true });
   const [saving, setSaving] = useState(false);
 
   const uploadFile = async (file) => {
     if (!file) return;
-    const formData = new FormData();
-    formData.append('files', file);
+    const fileName = `hero/${Date.now()}-${file.name}`;
     try {
-      const res = await fetch(`${API}/upload`, { 
-        method: 'POST', 
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData 
-      });
-      const data = await res.json();
-      if (data.files && data.files[0]) {
-        setForm(prev => ({ ...prev, image_url: data.files[0].url }));
+      const { error } = await supabaseClient.storage.from('products').upload(fileName, file);
+      if (error) {
+        if (error.message.includes('bucket') || error.message.includes('Bucket')) {
+          alert('Bucket "products" introuvable. Créez-le dans Supabase \u2192 Storage \u2192 New Bucket \u2192 "products" (Public)');
+        } else {
+          alert(`Erreur upload: ${error.message}`);
+        }
+        return;
       }
+      const { data: { publicUrl } } = supabaseClient.storage.from('products').getPublicUrl(fileName);
+      setForm(prev => ({ ...prev, image_url: publicUrl }));
     } catch (err) {
       console.error('Upload error:', err);
-      alert('Erreur lors de l\'upload');
+      alert('Erreur technique lors de l\'upload');
     }
   };
 

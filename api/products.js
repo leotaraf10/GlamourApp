@@ -1,4 +1,5 @@
-import { supabase } from '../_lib/supabase.js';
+import { supabase, supabaseAdmin } from '../_lib/supabase.js';
+import { verifyAdmin } from '../_lib/auth.js';
 
 export default async function handler(req, res) {
   const { method, query, body } = req;
@@ -24,8 +25,6 @@ export default async function handler(req, res) {
     if (solde === 'true') dbQuery = dbQuery.eq('solde', true);
     if (q) dbQuery = dbQuery.or(`nom.ilike.%${q}%,description.ilike.%${q}%`);
     
-    // Price filters (Note: Using prix_solde if present else prix is tricky in one query, 
-    // for simplicity we filter by prix for now or add a computed column in Supabase)
     if (min_price) dbQuery = dbQuery.gte('prix', Number(min_price));
     if (max_price) dbQuery = dbQuery.lte('prix', Number(max_price));
 
@@ -43,8 +42,12 @@ export default async function handler(req, res) {
     return res.status(200).json(data);
   }
 
+  // All write operations require admin
+  const admin = verifyAdmin(req);
+  if (!admin) return res.status(403).json({ error: 'Admin access required' });
+
   if (method === 'POST') {
-    const { data, error } = await supabase.from('products').insert([body]).select();
+    const { data, error } = await supabaseAdmin.from('products').insert([body]).select();
     if (error) {
       console.error('❌ Supabase Insert Error:', error);
       return res.status(500).json({ error: error.message });
