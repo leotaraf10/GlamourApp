@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: glamour-shop
+    env: node
+    plan: starter # Persistence requires at least a Starter plan on Render
+    region: frankfurt # Change if needed
+    rootDir: GlamourApp
+    buildCommand: npm install && npm run build
+    startCommand: cd server && npm install && node index.js
+    disk:
+      name: glamour-db
+      mountPath: /opt/render/project/src/GlamourApp/server/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: PORT
+        value: 5001
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_WHATSAPP_NUMBER
+        value: "212600000000"
