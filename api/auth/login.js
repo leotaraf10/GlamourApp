@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     // 5. Update last seen
     await supabase.from('users').update({ last_seen_at: new Date().toISOString() }).eq('id', user.id);
 
-    return res.status(200).json({ token, user: { id: user.id, email: user.email, nom: user.nom, prenom: user.prenom } });
+    return res.status(200).json({ token, user: { id: user.id, email: user.email, nom: user.nom, prenom: user.prenom, role: user.role } });
   }
 
   return res.status(405).json({ error: 'Method not allowed' });
