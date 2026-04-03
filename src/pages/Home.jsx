@@ -11,9 +11,9 @@ export default function Home() {
   const [newProducts, setNewProducts] = useState([]);
 
   useEffect(() => {
-    fetch(`${API}/api/products?sort=newest&limit=8`)
+    fetch(`${API_URL}/products?sort=newest&limit=8`)
       .then(res => res.json())
-      .then(data => setNewProducts(data))
+      .then(data => setNewProducts(Array.isArray(data) ? data : []))
       .catch(err => console.error(err));
   }, []);
 

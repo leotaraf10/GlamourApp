@@ -4,18 +4,6 @@ import ProductGrid from '../components/ProductGrid';
 import { Filter, ChevronDown, X } from 'lucide-react';
 import { API_URL } from '../apiConfig';
 
-const CATEGORIES = [
-  { id: 'soldes', label: 'Soldes -50%' },
-  { id: 'ete-2025', label: 'Été 2025' },
-  { id: 'jeans', label: 'Jeans' },
-  { id: 'robes', label: 'Robes' },
-  { id: 'tops-bodys', label: 'Tops | Bodys' },
-  { id: 'ensembles', label: 'Ensembles' },
-  { id: 'pantalons', label: 'Pantalons' },
-  { id: 'blazers', label: 'Blazers' },
-  { id: 'manteaux-trench', label: 'Manteaux | Trench' },
-];
-
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const COLORS = [
   { name: 'Noir', class: 'bg-black' },
@@ -29,6 +17,7 @@ const COLORS = [
 export default function Collection() {
   const { slug } = useParams();
   const [products, setProducts] = useState([]);
+  const [navCategories, setNavCategories] = useState([]); // Dynamic Categories
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState('newest');
   const [showFiltersMobile, setShowFiltersMobile] = useState(false);
@@ -38,7 +27,15 @@ export default function Collection() {
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
 
-  const title = slug.replace('-', ' ').toUpperCase();
+  const title = slug.replace(/-/g, ' ').toUpperCase();
+
+  useEffect(() => {
+    // Fetch categories for sidebar
+    fetch(`${API_URL}/categories`)
+      .then(r => r.json())
+      .then(data => setNavCategories(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetchProducts();
@@ -83,13 +80,13 @@ export default function Collection() {
       <div className="animate-fade-in group">
         <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#111111] mb-6 border-l-2 border-[#111111] pl-3">Collections</h4>
         <div className="flex flex-col gap-3">
-          {CATEGORIES.map(cat => (
+          {navCategories.map(cat => (
             <Link 
               key={cat.id} 
-              to={`/collections/${cat.id}`}
-              className={`text-[11px] uppercase tracking-widest transition-all hover:translate-x-1 ${slug === cat.id ? 'font-bold text-[#111111]' : 'text-[#888888] hover:text-[#111111]'}`}
+              to={`/collections/${cat.slug}`}
+              className={`text-[11px] uppercase tracking-widest transition-all hover:translate-x-1 ${slug === cat.slug ? 'font-bold text-[#111111]' : 'text-[#888888] hover:text-[#111111]'}`}
             >
-              {cat.label}
+              {cat.name}
             </Link>
           ))}
         </div>

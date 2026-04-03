@@ -123,21 +123,31 @@ function ProductsTab({ token }) {
 
   const uploadFile = async (file, field) => {
     if (!file) return;
-    const formData = new FormData();
-    formData.append('files', file);
+    
+    // Supabase Client for direct upload
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabase = createClient(process.env.VITE_SUPABASE_URL || 'https://zplnrgzlvqdunuizpldq.supabase.co', process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwbG5yZ3psdnFkdW51aXpwbGRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMTczMTAsImV4cCI6MjA5MDc5MzMxMH0.5ZJQekU4VLmgRi1__7SWd1ev2F-W9FFOaMSeFeHt7l0');
+
+    const fileName = `${Date.now()}-${file.name}`;
+    const filePath = `uploads/${fileName}`;
+
     try {
-      const res = await fetch(`${API}/upload`, { 
-        method: 'POST', 
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData 
-      });
-      const data = await res.json();
-      if (data.files && data.files[0]) {
-        setForm(prev => ({ ...prev, [field]: data.files[0].url }));
+      const { data, error } = await supabase.storage.from('products').upload(filePath, file);
+      if (error) {
+        if (error.message.includes('bucket not found')) {
+           alert('Erreur: Le bucket "products" n\'est pas créé sur votre Supabase. Allez dans "Storage" > "New Bucket" > Nommez-le "products" > Mettez-le en "Public".');
+        } else {
+           alert(`Erreur d'upload: ${error.message}`);
+        }
+        return;
       }
+
+      // Get Public URL
+      const { data: { publicUrl } } = supabase.storage.from('products').getPublicUrl(filePath);
+      setForm(prev => ({ ...prev, [field]: publicUrl }));
     } catch (err) {
       console.error('Upload error:', err);
-      alert('Erreur lors de l\'upload');
+      alert('Erreur technique lors de l\'upload');
     }
   };
   const save = async () => {
@@ -166,10 +176,19 @@ function ProductsTab({ token }) {
     };
     const method = editing === 'new' ? 'POST' : 'PUT';
     const url = editing === 'new' ? `${API}/products` : `${API}/products/${editing}`;
-    await fetch(url, { method, headers: authHeader(token), body: JSON.stringify(body) });
+    try {
+      const res = await fetch(url, { method, headers: authHeader(token), body: JSON.stringify(body) });
+      if (!res.ok) {
+        const errorData = await res.json();
+        alert(`Erreur: ${errorData.error || 'Impossible de sauvegarder le produit'}`);
+      } else {
+        closeEdit();
+        refresh();
+      }
+    } catch (err) {
+      alert('Erreur réseau ou serveur lors de la sauvegarde.');
+    }
     setSaving(false);
-    closeEdit();
-    refresh();
   };
 
   const deleteProduct = async (id) => {

@@ -18,7 +18,7 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`${API}/api/nav-categories`)
+    fetch(`${API_URL}/categories`)
       .then(r => r.json())
       .then(data => setCategories(Array.isArray(data) ? data : []))
       .catch(() => setCategories([]));

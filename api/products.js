@@ -44,9 +44,11 @@ export default async function handler(req, res) {
   }
 
   if (method === 'POST') {
-    // Admin middleware logic would go here (verify JWT)
     const { data, error } = await supabase.from('products').insert([body]).select();
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) {
+      console.error('❌ Supabase Insert Error:', error);
+      return res.status(500).json({ error: error.message });
+    }
     return res.status(201).json(data[0]);
   }
 

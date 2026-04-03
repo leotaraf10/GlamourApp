@@ -61,8 +61,8 @@ export default function ProductCard({ id, images = [], image_secondary, nom, pri
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
-          {nouveaute === 1 && <span className="bg-white text-[#111111] text-[8px] font-bold uppercase tracking-widest px-2 py-1">Nouveau</span>}
-          {best_seller === 1 && <span className="bg-[#8D7B68] text-white text-[8px] font-bold uppercase tracking-widest px-2 py-1">Best Seller</span>}
+          {!!nouveaute && <span className="bg-white text-[#111111] text-[8px] font-bold uppercase tracking-widest px-2 py-1">Nouveau</span>}
+          {!!best_seller && <span className="bg-[#8D7B68] text-white text-[8px] font-bold uppercase tracking-widest px-2 py-1">Best Seller</span>}
           {isOnSale && <span className="bg-[#111111] text-white text-[8px] font-bold uppercase tracking-widest px-2 py-1">Soldes</span>}
         </div>
 
