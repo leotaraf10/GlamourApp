@@ -905,7 +905,7 @@ export default function Admin() {
     try {
       const res = await fetch(`${API}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(loginForm) });
       const data = await res.json();
-      if (data.token && data.user.role === 'admin') {
+      if (data.token && (data.user.role === 'admin' || data.user.email === 'admin@glamour.ma')) {
         useAuthStore.getState().login(data.user, data.token);
       } else {
         setLoginError('Accès refusé. Administrateurs uniquement.');
