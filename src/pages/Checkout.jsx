@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCartStore, useAuthStore } from '../store';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Check, Tag } from 'lucide-react';
+import { API_URL } from '../apiConfig';
 
 export default function Checkout() {
   const items = useCartStore(state => state.items);
@@ -28,7 +29,7 @@ export default function Checkout() {
 
   const applyPromo = () => {
     if (!promoCode) return;
-    fetch('http://localhost:5001/api/promo/validate', {
+    fetch(`${API_URL}/promo/validate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code: promoCode.trim().toUpperCase(), total: cartTotal })
@@ -61,7 +62,7 @@ export default function Checkout() {
     };
 
     try {
-      const res = await fetch('http://localhost:5001/api/orders', {
+      const res = await fetch(`${API_URL}/orders`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
       });
       const data = await res.json();
@@ -184,7 +185,8 @@ export default function Checkout() {
                   const getImgUrl = (img) => {
                     if (!img) return '';
                     const url = typeof img === 'object' ? img.url : img;
-                    return (url.startsWith('http') || url.startsWith('data:')) ? url : `http://localhost:5001${url}`;
+                    const API_BASE = API_URL.replace('/api', '');
+                    const imgUrl = (url.startsWith('http') || url.startsWith('data:')) ? url : `${API_BASE}${url}`;
                   };
                   const img = getImgUrl(item.images?.[0]);
                   return (

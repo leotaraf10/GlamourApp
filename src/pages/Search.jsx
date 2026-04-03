@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductGrid from '../components/ProductGrid';
+import { API_URL } from '../apiConfig';
 
 export default function SearchPage() {
   const [searchParams] = useSearchParams();
-  const query = searchParams.get('q');
+  const query = searchParams.get('q') || '';
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (query) {
       setLoading(true);
-      fetch(`http://localhost:5001/api/products?q=${encodeURIComponent(query)}`)
+      fetch(`${API_URL}/products?q=${encodeURIComponent(query)}`)
         .then(res => res.json())
         .then(data => {
           setProducts(data);

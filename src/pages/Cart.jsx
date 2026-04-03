@@ -1,6 +1,9 @@
 import { useCartStore } from '../store';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, ArrowRight, Minus, Plus } from 'lucide-react';
+import { API_URL } from '../apiConfig';
+
+const API = API_URL.replace('/api', '');
 
 export default function Cart() {
   const items = useCartStore(state => state.items);
@@ -48,7 +51,7 @@ export default function Cart() {
                             if (!img) return '';
                             const url = typeof img === 'object' ? (img.url || img) : img;
                             if (typeof url !== 'string') return '';
-                            return (url.startsWith('http') || url.startsWith('data:')) ? url : `http://${window.location.hostname}:5001${url}`;
+                            const imgUrl = (url.startsWith('http') || url.startsWith('data:')) ? url : `${API}${url}`;
                           })()} 
                           alt={item.nom} 
                           className="w-full h-full object-cover" 

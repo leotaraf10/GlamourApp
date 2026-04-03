@@ -1,14 +1,16 @@
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, Eye, Heart } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCartStore } from '../store';
+import { API_URL } from '../apiConfig';
+
+const API = API_URL.replace('/api', '');
 
 export default function ProductCard({ id, images = [], image_secondary, nom, prix, prix_solde, best_seller, nouveaute, solde, tailles = [], marque }) {
   const addItem = useCartStore(state => state.addItem);
   const [hovered, setHovered] = useState(false);
   const [added, setAdded] = useState(false);
 
-  const API = `http://${window.location.hostname}:5001`;
   const getImgUrl = (img) => {
     if (!img) return 'https://via.placeholder.com/400x600/F2ECE4/8D7B68?text=SS';
     const url = (typeof img === 'object' && img !== null) ? (img.url || img) : img;

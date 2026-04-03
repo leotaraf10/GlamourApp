@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import ProductGrid from '../components/ProductGrid';
 import { Filter, ChevronDown, X } from 'lucide-react';
+import { API_URL } from '../apiConfig';
 
 const CATEGORIES = [
   { id: 'soldes', label: 'Soldes -50%' },
@@ -45,7 +46,7 @@ export default function Collection() {
 
   const fetchProducts = () => {
     setLoading(true);
-    let url = `http://${window.location.hostname}:5001/api/products?sort=${sort}`;
+    let url = `${API_URL}/products?sort=${sort}`;
     
     if (slug === 'best-sellers') url += '&best_seller=true';
     else if (slug === 'soldes') url += '&solde=true';

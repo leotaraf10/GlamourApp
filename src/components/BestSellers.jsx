@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation } from 'swiper/modules';
 import ProductCard from './ProductCard';
+import { API_URL } from '../apiConfig';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -11,7 +12,7 @@ export default function BestSellers() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:5001/api/products?best_seller=true')
+    fetch(`${API_URL}/products?best_seller=true`)
       .then(res => res.json())
       .then(data => {
         setProducts(data);

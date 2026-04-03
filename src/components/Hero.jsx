@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { API_URL } from '../apiConfig';
 
 const FALLBACK_SLIDES = [
   {
@@ -36,7 +37,7 @@ export default function Hero() {
   const timerRef = useRef(null);
 
   useEffect(() => {
-    fetch(`http://${window.location.hostname}:5001/api/hero-slides`)
+    fetch(`${API_URL}/hero`)
       .then(r => r.json())
       .then(data => setSlides(data && data.length > 0 ? data : FALLBACK_SLIDES))
       .catch(() => setSlides(FALLBACK_SLIDES));
@@ -77,7 +78,8 @@ export default function Hero() {
   );
 
   const slide = slides[current];
-  const imgUrl = slide.image_url || (slide.image ? `http://${window.location.hostname}:5001${slide.image}` : '');
+  const API_BASE = API_URL.replace('/api', '');
+  const imgUrl = slide.image_url || (slide.image ? `${API_BASE}${slide.image}` : '');
 
   return (
     <div className="relative w-full h-[100svh] bg-[#111111] overflow-hidden select-none" style={{ marginTop: '88px' }}>

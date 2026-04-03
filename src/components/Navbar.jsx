@@ -1,9 +1,10 @@
-import { ShoppingBag, Menu, Search, User, X } from 'lucide-react';
+import { ShoppingBag, Menu, Search, User, X, ChevronDown } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useCartStore } from '../store';
+import { useCartStore, useAuthStore } from '../store';
+import { API_URL } from '../apiConfig';
 
-const API = `http://${window.location.hostname}:5001`;
+const API = API_URL.replace('/api', '');
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);

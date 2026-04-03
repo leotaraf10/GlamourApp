@@ -3,7 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { ShoppingBag, ChevronRight, Check, Minus, Plus, Heart, Star } from 'lucide-react';
 import { useCartStore } from '../store';
 
-const API = `http://${window.location.hostname}:5001`;
+import { API_URL } from '../apiConfig';
+const API = API_URL.replace('/api', '');
 
 const getImgUrl = (img) => {
   if (!img) return '';

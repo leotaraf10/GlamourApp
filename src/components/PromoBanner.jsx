@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
+import { API_URL } from '../apiConfig';
 
 export default function PromoBanner() {
   const [text, setText] = useState('Livraison offerte dès 1000 DH | Paiement à la livraison | Retours gratuits 30 jours');
 
   useEffect(() => {
-    fetch('http://localhost:5001/api/home-sections')
+    fetch(`${API_URL}/home-sections`)
       .then(r => r.json())
       .then(sections => {
         const banner = sections.find(s => s.type === 'promobanner' && s.active);

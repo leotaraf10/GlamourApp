@@ -1,0 +1,167 @@
+-- 1. TABLES
+-- ==========================================
+
+-- USERS
+CREATE TABLE IF NOT EXISTS users (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  email TEXT UNIQUE NOT NULL,
+  password TEXT,
+  nom TEXT NOT NULL,
+  prenom TEXT NOT NULL,
+  tel TEXT,
+  role TEXT DEFAULT 'client',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  last_seen_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- PRODUCTS
+CREATE TABLE IF NOT EXISTS products (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  nom TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  description TEXT,
+  prix DECIMAL NOT NULL,
+  prix_solde DECIMAL,
+  best_seller BOOLEAN DEFAULT FALSE,
+  nouveaute BOOLEAN DEFAULT FALSE,
+  solde BOOLEAN DEFAULT FALSE,
+  categorie TEXT NOT NULL,
+  stock INTEGER DEFAULT 100,
+  images JSONB DEFAULT '[]',
+  image_secondary TEXT,
+  videos JSONB DEFAULT '[]',
+  tailles JSONB DEFAULT '[]',
+  couleurs JSONB DEFAULT '[]',
+  stock_variants JSONB DEFAULT '{}',
+  marque TEXT,
+  order_index INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ORDERS
+CREATE TABLE IF NOT EXISTS orders (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  user_id BIGINT REFERENCES users(id),
+  email TEXT NOT NULL,
+  nom TEXT NOT NULL,
+  prenom TEXT NOT NULL,
+  adresse TEXT NOT NULL,
+  code_postal TEXT NOT NULL,
+  ville TEXT NOT NULL,
+  tel TEXT NOT NULL,
+  total DECIMAL NOT NULL,
+  statut TEXT DEFAULT 'pending',
+  livraison_mode TEXT NOT NULL,
+  livraison_cost DECIMAL DEFAULT 50,
+  promo_code TEXT,
+  promo_discount DECIMAL DEFAULT 0,
+  whatsapp_sent BOOLEAN DEFAULT FALSE,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ORDER ITEMS
+CREATE TABLE IF NOT EXISTS order_items (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  order_id BIGINT REFERENCES orders(id) ON DELETE CASCADE,
+  product_id BIGINT REFERENCES products(id),
+  nom_produit TEXT NOT NULL,
+  taille TEXT NOT NULL,
+  couleur TEXT,
+  quantite INTEGER NOT NULL,
+  prix_unitaire DECIMAL NOT NULL
+);
+
+-- REVIEWS
+CREATE TABLE IF NOT EXISTS reviews (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  product_id BIGINT REFERENCES products(id) ON DELETE CASCADE,
+  user_id BIGINT REFERENCES users(id),
+  nom TEXT NOT NULL DEFAULT 'Anonyme',
+  ville TEXT DEFAULT '',
+  note INTEGER NOT NULL,
+  commentaire TEXT,
+  approuve BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- HERO SLIDES
+CREATE TABLE IF NOT EXISTS hero_slides (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  image_url TEXT,
+  video_url TEXT,
+  title TEXT,
+  subtitle TEXT,
+  cta_text TEXT DEFAULT 'Découvrir',
+  cta_link TEXT DEFAULT '/',
+  order_index INTEGER DEFAULT 0,
+  active BOOLEAN DEFAULT TRUE,
+  duration INTEGER DEFAULT 5000
+);
+
+-- HOME SECTIONS
+CREATE TABLE IF NOT EXISTS home_sections (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  type TEXT UNIQUE NOT NULL,
+  title TEXT,
+  subtitle TEXT,
+  active BOOLEAN DEFAULT TRUE,
+  order_index INTEGER DEFAULT 0,
+  config JSONB DEFAULT '{}'
+);
+
+-- SITE SETTINGS
+CREATE TABLE IF NOT EXISTS site_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT
+);
+
+-- NAV CATEGORIES
+CREATE TABLE IF NOT EXISTS nav_categories (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  position INTEGER DEFAULT 0,
+  is_hot BOOLEAN DEFAULT FALSE,
+  is_visible BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- VISITORS LOG
+CREATE TABLE IF NOT EXISTS visitors_log (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  session_id TEXT,
+  page TEXT,
+  action TEXT,
+  data JSONB,
+  timestamp TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- PROMO CODES
+CREATE TABLE IF NOT EXISTS promo_codes (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  code TEXT UNIQUE NOT NULL,
+  type TEXT DEFAULT 'percent',
+  value DECIMAL NOT NULL,
+  min_order DECIMAL DEFAULT 0,
+  max_uses INTEGER DEFAULT 100,
+  uses INTEGER DEFAULT 0,
+  active BOOLEAN DEFAULT TRUE,
+  expires_at TIMESTAMPTZ
+);
+
+-- 2. POLICIES (RLS) - Simplifié pour le début
+-- ==========================================
+-- Désactive RLS pour permettre les requêtes anonymes (à sécuriser plus tard si besoin)
+ALTER TABLE products DISABLE ROW LEVEL SECURITY;
+ALTER TABLE nav_categories DISABLE ROW LEVEL SECURITY;
+ALTER TABLE orders DISABLE ROW LEVEL SECURITY;
+ALTER TABLE order_items DISABLE ROW LEVEL SECURITY;
+ALTER TABLE users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE reviews DISABLE ROW LEVEL SECURITY;
+ALTER TABLE hero_slides DISABLE ROW LEVEL SECURITY;
+ALTER TABLE home_sections DISABLE ROW LEVEL SECURITY;
+ALTER TABLE site_settings DISABLE ROW LEVEL SECURITY;
+ALTER TABLE visitors_log DISABLE ROW LEVEL SECURITY;
+ALTER TABLE promo_codes DISABLE ROW LEVEL SECURITY;

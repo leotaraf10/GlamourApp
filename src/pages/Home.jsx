@@ -3,10 +3,12 @@ import Hero from '../components/Hero';
 import BestSellers from '../components/BestSellers';
 import ProductGrid from '../components/ProductGrid';
 import SocialProof from '../components/SocialProof';
+import { API_URL } from '../apiConfig';
+
+const API = API_URL.replace('/api', '');
 
 export default function Home() {
   const [newProducts, setNewProducts] = useState([]);
-  const API = `http://${window.location.hostname}:5001`;
 
   useEffect(() => {
     fetch(`${API}/api/products?sort=newest&limit=8`)

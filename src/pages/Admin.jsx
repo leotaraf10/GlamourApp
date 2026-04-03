@@ -7,10 +7,11 @@ import {
   Navigation, Pencil, GripVertical, EyeOff, Flame
 } from 'lucide-react';
 import { useAuthStore } from '../store';
+import { API_URL } from '../apiConfig';
 
 // ─── Helpers ──────────────────────────────────────────────────────
-const API = `http://${window.location.hostname}:5001/api`;
-const BASE_URL = `http://${window.location.hostname}:5001`;
+const API = API_URL;
+const BASE_URL = API_URL.replace('/api', '');
 const authHeader = (token) => ({ 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' });
 
 const getImgUrl = (img) => {
