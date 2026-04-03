@@ -1,16 +1,24 @@
-# React + Vite
+# ⚜️ Glamour - Boutique E-Commerce de Luxe
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Glamour** est une plateforme e-commerce premium conçue pour offrir une expérience d'achat élégante et une gestion simplifiée pour l'administrateur.
 
-Currently, two official plugins are available:
+## ✨ Fonctionnalités Clés
+- 🛍️ **Catalogue Dynamique** : Gestion complète des produits et catégories depuis l'admin.
+- 📦 **Stocks Avancés** : Suivi précis des stocks par variante (Couleur & Taille).
+- 📲 **Commandes WhatsApp** : Validation des commandes directement sur WhatsApp.
+- 📊 **Export Google Sheets** : Exportation en un clic de toutes les commandes avec détails des articles.
+- ⚡ **Performance** : Interface ultra-rapide bâtie avec React et Vite.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠️ Stack Technique
+- **Frontend** : React, Tailwind CSS, Lucide Icons, Zustand.
+- **Backend** : Node.js, Express, SQLite3, Socket.io.
+- **Déploiement** : Prêt pour Render.com ou VPS.
 
-## React Compiler
+## 🚀 Installation & Utilisation
+1. Clonez le dépôt : `git clone https://github.com/leotaraf10/GlamourApp.git`
+2. Installez les dépendances : `npm install`
+3. Lancez le mode développement : `npm run dev`
+4. Côté serveur : `cd server && npm install && node index.js`
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 📝 Licence
+Ce projet est développé pour la boutique **Glamour**. Tous droits réservés.
