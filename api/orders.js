@@ -8,11 +8,17 @@ export default async function handler(req, res) {
     const admin = verifyAdmin(req);
     if (!admin) return res.status(403).json({ error: 'Admin access required' });
 
-    const { limit } = query;
+    const { limit, id } = query;
     let dbQuery = supabase
       .from('orders')
       .select('*, order_items(*)')
       .order('created_at', { ascending: false });
+
+    if (id) {
+       const { data, error } = await dbQuery.eq('id', id).single();
+       if (error) return res.status(500).json({ error: error.message });
+       return res.status(200).json(data);
+    }
 
     if (limit) dbQuery = dbQuery.limit(Number(limit));
 
