@@ -1,5 +1,5 @@
-import { supabase } from '../_lib/supabase.js';
-import { verifyAdmin } from '../_lib/auth.js';
+import { supabase } from './_lib/supabase.js';
+import { verifyAdmin } from './_lib/auth.js';
 
 export default async function handler(req, res) {
   const { method, query, body } = req;

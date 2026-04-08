@@ -1,5 +1,5 @@
-import { supabaseAdmin } from '../_lib/supabase.js';
-import { verifyAdmin } from '../_lib/auth.js';
+import { supabaseAdmin } from './_lib/supabase.js';
+import { verifyAdmin } from './_lib/auth.js';
 
 // Vercel serverless config: disable default body parser to handle raw buffer
 export const config = {
