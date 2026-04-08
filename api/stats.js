@@ -1,5 +1,5 @@
-import { supabase } from './_lib/supabase.js';
-import { verifyAdmin } from './_lib/auth.js';
+import { supabase } from '../server-lib/supabase.js';
+import { verifyAdmin } from '../server-lib/auth.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
