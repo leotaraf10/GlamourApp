@@ -166,8 +166,10 @@ function ProductsTab({ token }) {
       if (finalStockVariants[c] === undefined) finalStockVariants[c] = 0;
     });
 
+    const { image_primary, ...cleanedForm } = form;
+
     const body = {
-      ...form,
+      ...cleanedForm,
       prix: parseFloat(form.prix),
       prix_solde: form.prix_solde ? parseFloat(form.prix_solde) : null,
       tailles: (form.tailles || '').split(',').map(t => t.trim()).filter(Boolean),
