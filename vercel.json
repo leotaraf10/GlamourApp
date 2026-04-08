@@ -5,6 +5,8 @@
     }
   },
   "rewrites": [
+    { "source": "/api/products/:id", "destination": "/api/products?id=:id" },
+    { "source": "/api/orders/:id/status", "destination": "/api/orders?id=:id" },
     { "source": "/api/:path*", "destination": "/api/:path*" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]

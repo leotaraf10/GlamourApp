@@ -31,9 +31,10 @@ export default async function handler(req, res) {
     return res.status(200).json(data);
   }
 
-  // POST → add a public review
+  // POST → add a public or admin review
   if (method === 'POST') {
-    const { data, error } = await supabaseAdmin.from('reviews').insert([{ ...body, approuve: false }]).select();
+    const adminUser = verifyAdmin(req);
+    const { data, error } = await supabaseAdmin.from('reviews').insert([{ ...body, approuve: !!adminUser }]).select();
     if (error) return res.status(500).json({ error: error.message });
     return res.status(201).json(data[0]);
   }

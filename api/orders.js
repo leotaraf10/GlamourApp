@@ -62,5 +62,23 @@ export default async function handler(req, res) {
     return res.status(201).json(order);
   }
 
+  if (method === 'PUT') {
+    const { id } = query;
+    const { statut } = body;
+    if (!id || !statut) return res.status(400).json({ error: 'id and statut required' });
+
+    const admin = verifyAdmin(req);
+    if (!admin) return res.status(403).json({ error: 'Admin access required' });
+
+    const { data, error } = await supabaseAdmin
+      .from('orders')
+      .update({ statut })
+      .eq('id', id)
+      .select();
+
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json(data[0]);
+  }
+
   return res.status(405).json({ error: 'Method not allowed' });
 }
